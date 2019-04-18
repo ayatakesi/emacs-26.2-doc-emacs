@@ -169,7 +169,7 @@ emacs-ja.epub: $(TEXIS)
 	xsltproc http://docbook.sourceforge.net/release/xsl/current/epub/docbook.xsl emacs-ja.docbook
 	echo "application/epub+zip" > mimetype
 	zip -0Xq emacs-ja.epub mimetype
-	zip -Xr9D emacs-jxs.epub META-INF OEBPS
+	zip -Xr9D emacs-ja.epub META-INF OEBPS
 
 emacs-ja-html/index.html: $(TEXIS)
 	texinfo-js emacs-ja.texi
