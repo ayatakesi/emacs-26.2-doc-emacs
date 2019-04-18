@@ -44,6 +44,12 @@ pdf: emacs-ja.pdf emacs-xtra-ja.pdf
 # tar.gz用のターゲット(オプション)
 tar: emacs-ja.texis.tar.gz
 
+# EPUB用のターゲット(オプション、experimental)
+epub: emacs-ja.epub
+
+# texinfo-js用のターゲット(オプション、experimental)
+texinfo-js: emacs-ja-html/index.html
+
 TEXIS := \
 abbrevs.texi \
 ack.texi \
@@ -113,7 +119,9 @@ clean:
 	rm -f *.pdf
 	rm -f *.txt
 	rm -f *.tar.gz
-	rm -fR emacs.texis/
+	rm -fR emacs-ja.texis/
+	rm -fR *.epub *.docbook mimetype META-INF OEBPS
+	rm -fR emacs-ja-html/
 
 %.texi:
 	if [ -f $@.po ]; \
@@ -134,11 +142,12 @@ html/index.html: $(TEXIS)
 emacs-ja.info: $(TEXIS)
 	makeinfo --no-split -o emacs-ja.info emacs-ja.texi
 
-emacs-ja.pdf emacs-xtra-ja.pdf: $(TEXIS)
+emacs-ja.pdf: $(TEXIS)
 	TEX=ptex texi2dvi -c emacs-ja.texi
 	dvipdfmx emacs-ja.dvi
 	rm -f emacs-ja.dvi
 
+emacs-xtra-ja.pdf: $(TEXIS)
 	TEX=ptex texi2dvi -c emacs-xtra-ja.texi
 	dvipdfmx emacs-xtra-ja.dvi
 	rm emacs-xtra-ja.dvi
@@ -154,3 +163,13 @@ emacs-ja.texis.tar.gz: $(TEXIS)
 
 	cp -fp *.texi emacs-ja.texis
 	tar cvfz ./emacs-ja.texis.tar.gz ./emacs-ja.texis
+
+emacs-ja.epub: $(TEXIS)
+	makeinfo --docbook emacs-ja.texi -o emacs-ja.docbook
+	xsltproc http://docbook.sourceforge.net/release/xsl/current/epub/docbook.xsl emacs-ja.docbook
+	echo "application/epub+zip" > mimetype
+	zip -0Xq emacs-ja.epub mimetype
+	zip -Xr9D emacs-jxs.epub META-INF OEBPS
+
+emacs-ja-html/index.html: $(TEXIS)
+	texinfo-js emacs-ja.texi
